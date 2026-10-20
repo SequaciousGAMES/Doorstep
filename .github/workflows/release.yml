@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    name: Build and publish installer
+    runs-on: windows-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          choco upgrade innosetup --version=6.7.1 --yes --no-progress
+          if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne 3010) { exit $LASTEXITCODE }
+
+      - name: Build the installer
+        shell: pwsh
+        run: |
+          ./installer/Build.ps1
+          $setup = "./artifacts/DoorstepSetup.exe"
+          $package = "./artifacts/Doorstep-win-x64.zip"
+          if (-not (Test-Path $setup)) { throw "The installer was not created." }
+          if (-not (Test-Path $package)) { throw "The release package was not created." }
+          Get-Item $setup, $package | Select-Object FullName, Length
+
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        shell: pwsh
+        run: |
+          $notes = "Unofficial Windows installer for Doorstep.`n`nDoorstep is not affiliated with Ring or Amazon. Sign-in happens on Ring's website. Doorstep does not store the password.`n`nAlerts can be missed. Doorstep shows one only when the Ring site raises a notification, and it is not a security or monitoring service.`n`nDownload and run DoorstepSetup.exe. Setup downloads Doorstep-win-x64.zip from the latest release and installs that build, so the setup program does not need to be replaced when a new build is published. A normal install asks for administrator rights and defaults to Program Files. You can choose a per-user install instead, which does not require administrator rights. The tray menu can check for a newer release and install it over the current copy. Windows SmartScreen will warn because the installer is not signed. Windows 10 version 1809 or later, 64-bit, is required. Setup installs the Microsoft Edge WebView2 Runtime when it is missing."
+          $setup = "./artifacts/DoorstepSetup.exe"
+          $package = "./artifacts/Doorstep-win-x64.zip"
+          $title = "Doorstep $env:RELEASE_TAG"
+          $PSNativeCommandUseErrorActionPreference = $false
+          gh release view $env:RELEASE_TAG --json tagName | Out-Null
+          $exists = $LASTEXITCODE -eq 0
+          if ($exists) {
+            gh release upload $env:RELEASE_TAG $setup $package --clobber
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            gh release edit $env:RELEASE_TAG --title $title --notes $notes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } else {
+            gh release create $env:RELEASE_TAG $setup $package --title $title --notes $notes
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }

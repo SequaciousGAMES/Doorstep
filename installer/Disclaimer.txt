@@ -1,0 +1,9 @@
+Doorstep is an unofficial Windows window for the Ring dashboard. It is not affiliated with Ring or Amazon.
+
+Sign-in happens on Ring's website. Doorstep does not store the password.
+
+Alerts can be missed. Doorstep shows one only when the Ring site raises a notification, and it is not a security or monitoring service.
+
+Setup downloads the latest Doorstep release from the project's public GitHub page.
+
+Windows SmartScreen will warn because this installer is not signed.
