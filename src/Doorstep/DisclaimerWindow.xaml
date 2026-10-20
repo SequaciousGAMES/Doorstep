@@ -1,0 +1,34 @@
+<Window x:Class="Doorstep.DisclaimerWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Doorstep"
+        Width="520"
+        SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True">
+    <StackPanel Margin="24">
+        <TextBlock x:Name="Heading"
+                   Text="Doorstep"
+                   FontSize="22"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,12" />
+        <TextBlock x:Name="Unofficial"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,8"
+                   Text="Doorstep is unofficial and is not affiliated with Ring or Amazon." />
+        <TextBlock x:Name="SignIn"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,8"
+                   Text="Sign-in happens on Ring's website. Doorstep does not store the password." />
+        <TextBlock x:Name="Alerts"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,16"
+                   Text="Alerts can be missed. Doorstep shows one only when the Ring site raises a notification, and it is not a security or monitoring service." />
+        <Button Content="Continue"
+                HorizontalAlignment="Right"
+                Padding="16,6"
+                IsDefault="True"
+                Click="OnContinue" />
+    </StackPanel>
+</Window>
